@@ -7,9 +7,20 @@
 //
 
 #include <iostream>
-
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <unordered_set>
+#include <unordered_map>
+#include <sstream>
+#include <fstream>
+#include "cpathGraph.h"
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::cout << "Hello, World!\n";
+    graph abc;
+    std::cout<<argv[1];
+    abc.read_file(argv[1]);
+    abc.display();
     return 0;
 }
