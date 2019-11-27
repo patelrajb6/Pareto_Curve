@@ -11,6 +11,7 @@
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
+#include <map>
 #include <sstream>
 #include <fstream>
 #ifndef cpathGraph_h
@@ -43,7 +44,7 @@ class graph
     
    // vector<vertex> vertices;
 private:
-    vertex vertices[10];
+    map<int, vertex> vertices;
     
     
    
@@ -131,14 +132,14 @@ public:
     {
         for( auto p: this->vertices)
         {
-            cout<<p.id<<" has outgoing edges to ";
-            for(auto a: p.outgoing)
+            cout<<p.second.id<<" has outgoing edges to ";
+            for(auto a: p.second.outgoing)
             {
                 cout<<a.vertex_id<<" ";
             }
              cout<<endl;
-             cout<<p.id<<" has incoming edges from ";
-            for(auto a: p.incoming)
+             cout<<p.second.id<<" has incoming edges from ";
+            for(auto a: p.second.incoming)
             {
                 cout<<a.vertex_id<<" ";
             }
