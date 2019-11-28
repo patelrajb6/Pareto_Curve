@@ -9,8 +9,7 @@
 #include <algorithm>
 #include <vector>
 #include <queue>
-#include <unordered_set>
-#include <unordered_map>
+
 #include <map>
 #include <sstream>
 #include <fstream>
@@ -20,7 +19,6 @@ using namespace std;
 
 class graph
 {
-    
     struct edge
     {
       int vertex_id;
@@ -31,29 +29,41 @@ class graph
         {
         }
     };
+    
+    struct totalTradeOff
+    {
+        int totalCost;
+        int totalTime;
+        totalTradeOff(int totcost=0, int totTime=0):totalCost{totcost},totalTime{totTime}
+        {
+            
+        }
+    };
     struct vertex
      {
        int id;
        vector<edge> outgoing;
        vector<edge> incoming;
+       vector<vertex> paretoCurve;
+       totalTradeOff total;
        vertex(int _id = 0)
            : id{_id}
          {
          }
      };
     
-   // vector<vertex> vertices;
+    
+    
+    
+   
 private:
     map<int, vertex> vertices;
     
-    
-   
-   
     bool add_edge(const string &str)
     {
-      std::stringstream ss(str);
+        std::stringstream ss(str);
         string junk;
-      int src=0,dest=0,cost=0,time=0;
+        int src=0,dest=0,cost=0,time=0;
 
         if (!(ss >> src))
             return false;
@@ -69,14 +79,11 @@ private:
         }
       else
       {
-       
         if (ss >> junk)
         {
-          // extra token?  format error
           return false;
         }
       }
-       // cout<<src<<" "<<dest<<" "<<cost<<" "<<time<<endl;
        
       add_edge2(src, dest,cost,time);
       return true;
@@ -132,21 +139,33 @@ public:
     {
         for( auto p: this->vertices)
         {
-            cout<<p.second.id<<" has outgoing edges to ";
+            cout<<p.second.id<<" has outgoing edges to "<<endl;
             for(auto a: p.second.outgoing)
             {
-                cout<<a.vertex_id<<" ";
+                cout<<a.vertex_id<<" "<<a.cost<<" "<<a.time<<endl;
             }
              cout<<endl;
-             cout<<p.second.id<<" has incoming edges from ";
-            for(auto a: p.second.incoming)
-            {
-                cout<<a.vertex_id<<" ";
-            }
-             cout<<endl;
+//             cout<<" has incoming edges from "<<endl;
+//            for(auto a: p.second.incoming)
+//            {
+//                cout<<a.vertex_id<<" "<<a.cost<<" "<<a.time<<endl;
+//            }
+//             cout<<endl;
         }
             
         cout<<endl;
+    }
+    void nonDominant(int src, int dest)
+    {
+         priority_queue <int, vector<int>, greater<int> > Que;
+        Que.push(src);
+        
+        while(!Que.empty())
+        {
+            int vrtx=Que.top();
+            Que.pop();
+            
+        }
     }
 };
 #endif /* cpathGraph_h */
