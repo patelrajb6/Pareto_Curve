@@ -168,7 +168,7 @@ public:
     {
        auto compare=[](const totalTradeOff& a, const totalTradeOff& b)
           {
-              return a.totalCost< b.totalCost;
+              return a.totalCost> b.totalCost;
           };
 
         totalTradeOff vrtx;
@@ -184,18 +184,19 @@ public:
             vrtx=Que.top();
             cout<<"vertex: "<<vrtx.vertexID<<endl;
             Que.pop();
-            if(dest==vrtx.vertexID)
-            {
-                if(currentTime< vrtx.totalTime && currentCost>vrtx.totalCost)
-                    {
-                        this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,vrtx.vertexID));
-                        //cout<<currentCost<<"  inside  "<<currentTime<<" "<<vrtx.vertexID<<endl;
-                    }
-                
-            }
+            
+            
             for (auto &edg: this->vertices[vrtx.vertexID].outgoing)
             {
-            
+//                if(edg.vertex_id==6)
+//                                {
+//                                    cout<<"first edge"<<edg.vertex_id<<endl;
+//                                }
+                if(dest==edg.vertex_id)
+                {
+                    this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,vrtx.vertexID));
+                }
+//
                 currentCost=this->vertices[src].total.totalCost+edg.cost;
                 currentTime=this->vertices[src].total.totalTime+edg.time;
                 //cout<<currentCost<<" "<<currentTime<<" "<<edg.vertex_id<<endl;

@@ -14,7 +14,7 @@ int main(int argc, const char * argv[]) {
     graph abc;
     std::cout<<argv[1];
     abc.read_file(argv[1]);
-    abc.result(0, 6);
+    abc.result(0, 5);
     
     //abc.display();
     return 0;
