@@ -17,42 +17,45 @@
 #define cpathGraph_h
 using namespace std;
 
+ 
 class graph
 {
+    struct totalTradeOff
+    {
+        int vertexID;
+        int totalCost;
+        int totalTime;
+        totalTradeOff(int totcost=0, int totTime=0, int vID=0):totalCost{totcost},totalTime{totTime},vertexID{vID}
+        {
+            
+        }
+    };
     struct edge
     {
       int vertex_id;
       int cost;
       int time;
+      
       edge(int vtx_id = 0,int _cost=0, int _time = 1.0)
         : vertex_id{vtx_id}, cost{_cost}, time{_time}
         {
         }
     };
     
-    struct totalTradeOff
-    {
-        int totalCost;
-        int totalTime;
-        totalTradeOff(int totcost=0, int totTime=0):totalCost{totcost},totalTime{totTime}
-        {
-            
-        }
-    };
+    
     struct vertex
      {
        int id;
        vector<edge> outgoing;
        vector<edge> incoming;
-       vector<vertex> paretoCurve;
+       vector<totalTradeOff> paretoCurve;
        totalTradeOff total;
-       vertex(int _id = 0)
+         vertex(int _id = 0)
            : id{_id}
          {
          }
      };
-    
-    
+   
     
     
    
@@ -155,16 +158,62 @@ public:
             
         cout<<endl;
     }
-    void nonDominant(int src, int dest)
+    
+
+   
+
+    
+
+    vector<totalTradeOff> nonDominant(int src, int dest)
     {
-         priority_queue <int, vector<int>, greater<int> > Que;
-        Que.push(src);
-        
+       auto compare=[](const totalTradeOff& a, const totalTradeOff& b)
+          {
+              return a.totalCost< b.totalCost;
+          };
+
+        totalTradeOff vrtx;
+        int currentCost= -1;
+        int currentTime=-1;
+        unsigned long VecSize=0;
+        priority_queue <totalTradeOff, vector<totalTradeOff>,decltype(compare)> Que(compare);
+        Que.push(this->vertices[src].total);
+
         while(!Que.empty())
         {
-            int vrtx=Que.top();
+            VecSize=this->vertices[src].paretoCurve.size();
+            vrtx=Que.top();
+            cout<<"vertex: "<<vrtx.vertexID<<endl;
             Que.pop();
+            if(dest==vrtx.vertexID)
+            {
+                if(currentTime< vrtx.totalTime && currentCost>vrtx.totalCost)
+                    {
+                        this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,vrtx.vertexID));
+                        //cout<<currentCost<<"  inside  "<<currentTime<<" "<<vrtx.vertexID<<endl;
+                    }
+                
+            }
+            for (auto &edg: this->vertices[vrtx.vertexID].outgoing)
+            {
             
+                currentCost=this->vertices[src].total.totalCost+edg.cost;
+                currentTime=this->vertices[src].total.totalTime+edg.time;
+                //cout<<currentCost<<" "<<currentTime<<" "<<edg.vertex_id<<endl;
+                Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                
+            }
+        }
+        
+        return this->vertices[src].paretoCurve;
+    }
+        
+    void result(int src, int dest)
+    {
+        vector<totalTradeOff> p= nonDominant(src, dest);
+        
+        for(auto& curvePoints: p)
+        {
+            cout<<curvePoints.totalCost<<": "<<curvePoints.totalTime<<": "<<curvePoints.vertexID<<endl;
         }
     }
 };
