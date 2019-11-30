@@ -49,9 +49,10 @@ class graph
        vector<edge> outgoing;
        vector<edge> incoming;
        vector<totalTradeOff> paretoCurve;
+         int predecessor;
        totalTradeOff total;
          vertex(int _id = 0)
-           : id{_id}
+         : id{_id},predecessor{_id}
          {
          }
      };
@@ -104,6 +105,7 @@ private:
     void add_vertex(int src)
     {
         vertices[src].id=src;
+        vertices[src].predecessor=src;
     }
     void _add_edge(const string &str)
     {
@@ -190,7 +192,7 @@ public:
             VecSize=this->vertices[src].paretoCurve.size();
             vrtx=Que.top();
             //cout<<"vertex: "<<vrtx.vertexID<<endl;
-            cout<<"vertex: "<<vrtx.vertexID<<"  cost: "<<vrtx.totalCost<<" time: "<<vrtx.totalTime<<endl;
+          //  cout<<"vertex: "<<vrtx.vertexID<<"  cost: "<<vrtx.totalCost<<" time: "<<vrtx.totalTime<<endl;
             Que.pop();
 
             for (auto &edg: this->vertices[vrtx.vertexID].outgoing)
@@ -202,17 +204,15 @@ public:
                if(this->vertices[edg.vertex_id].total.totalCost<currentCost &&
                this->vertices[edg.vertex_id].total.totalTime>currentTime)
                {
-
-
-                  this->vertices[edg.vertex_id].total.totalCost=currentCost;
+                   this->vertices[edg.vertex_id].predecessor=vrtx.vertexID;
+                   this->vertices[edg.vertex_id].total.totalCost=currentCost;
                    this->vertices[edg.vertex_id].total.totalTime=currentTime;
                    Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
                }
 
                 if(dest==edg.vertex_id)
                 {
-        this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
-                  //  return this->vertices[src].paretoCurve;
+                    this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
                 }
  
             }
@@ -220,15 +220,47 @@ public:
         
         return this->vertices[src].paretoCurve;
     }
+    
+    bool extract_path(int src,int dest, vector<int> &path)
+      {
+        path.clear();
+      
+        if (this->vertices[dest].predecessor == dest)
+        {
+          path.push_back(dest);
+          return true;
+        }
+
+        _extract_path(src, dest, path);
+
+        // your code here!
+        return true; // placeholder
+      }
+
+      void _extract_path(int src,int dest, vector<int> &path)
+      {
+        if (this->vertices[dest].predecessor == dest)
+        {
+          path.push_back(dest);
+          return;
+        }
+        _extract_path(src, this->vertices[dest].predecessor, path);
+        path.push_back(dest);
+      }
         
     void result(int src, int dest)
     {
         vector<totalTradeOff> p= nonDominant(src, dest);
+        vector<int> path;
         
         for(auto& curvePoints: p)
         {
-            cout<<curvePoints.totalCost<<": "<<curvePoints.totalTime<<": "<<curvePoints.vertexID<<endl;
-            
+            path.clear();
+            cout<<"vertex to: "<<curvePoints.vertexID<<"  cost: "<<curvePoints.totalCost<<" time: "<<curvePoints.totalTime<<endl;
+            extract_path(src,dest,path);
+            for(auto& pathss: path)
+                cout<<pathss<<" ";
+            cout<<endl;
         }
     }
 };
