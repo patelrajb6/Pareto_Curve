@@ -99,7 +99,9 @@ private:
             add_vertex(src);
             add_vertex(dest);
             this->vertices[src].outgoing.push_back(edge(dest,cost,time));
+            
             this->vertices[dest].incoming.push_back(edge(src,cost,time));
+             
            return true;
          }
     void add_vertex(int src)
@@ -166,7 +168,7 @@ public:
 
     //void path();
 
-    vector<totalTradeOff> nonDominant(int src, int dest)
+    vector<totalTradeOff> nonDominant(int src, int dest, int budget)
     {
        auto compare=[](const totalTradeOff& a, const totalTradeOff& b)
           {
@@ -197,27 +199,42 @@ public:
 
             for (auto &edg: this->vertices[vrtx.vertexID].outgoing)
             {
-               
                 currentCost=vrtx.totalCost+edg.cost;
                 currentTime=vrtx.totalTime+edg.time;
-                
-               if(this->vertices[edg.vertex_id].total.totalCost<currentCost &&
-               this->vertices[edg.vertex_id].total.totalTime>currentTime)
-               {
-                   this->vertices[edg.vertex_id].predecessor=vrtx.vertexID;
-                   this->vertices[edg.vertex_id].total.totalCost=currentCost;
-                   this->vertices[edg.vertex_id].total.totalTime=currentTime;
-                   Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
-               }
-
-                if(dest==edg.vertex_id)
+                if(currentCost<=budget)
                 {
-                    this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                    if(this->vertices[edg.vertex_id].total.totalCost<currentCost &&
+                                       this->vertices[edg.vertex_id].total.totalTime>currentTime)
+                                       {
+                                           this->vertices[edg.vertex_id].predecessor=vrtx.vertexID;
+                                           this->vertices[edg.vertex_id].total.totalCost=currentCost;
+                                           this->vertices[edg.vertex_id].total.totalTime=currentTime;
+                                           Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                                       }// push if statement
+
+                                        if(dest==edg.vertex_id)
+                                        {
+                    //                        this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                                           if(VecSize!=0)
+                                           {
+                                               
+                                               if(this->vertices[src].paretoCurve[VecSize-1].totalCost<currentCost && this->vertices[src].paretoCurve[VecSize-1].totalTime>currentTime)
+                                               {
+                                                   this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                                               }//if for previous
+                                               
+                                           }//vecsize
+                                            else
+                                            {
+                                            this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                                                            }
+                                            
+                                             //else for vecsize
+                                        }//dest if statement
                 }
- 
+                   
             }
         }
-        
         return this->vertices[src].paretoCurve;
     }
     
@@ -248,9 +265,9 @@ public:
         path.push_back(dest);
       }
         
-    void result(int src, int dest)
+    void result(int src, int dest,int budget)
     {
-        vector<totalTradeOff> p= nonDominant(src, dest);
+        vector<totalTradeOff> p= nonDominant(src, dest, budget);
         vector<int> path;
         
         for(auto& curvePoints: p)

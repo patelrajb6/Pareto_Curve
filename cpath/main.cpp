@@ -15,12 +15,11 @@ int main(int argc, const char * argv[]) {
     std::cout<<argv[1];
 //    std::cout<<argv[2];
 //    std::cout<<argv[3];
-//    std::cout<<argv[4];
-   // abc.read_file("g2.txt");
+//    std::cout<<argv[4];abc.read_file("g2.txt");
     abc.read_file(argv[1]);
     
     
    // abc.display();
-    abc.result(5,6);
+    abc.result(0,6,12);
     return 0;
 }
