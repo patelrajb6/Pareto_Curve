@@ -18,9 +18,11 @@ int main(int argc, const char * argv[]) {
 //    std::cout<<argv[4];
     //abc.read_file("g2.txt");
     abc.read_file(argv[1]);
-    
+    int source= atoi(argv[2]);
+    int target= atoi(argv[3]);
+    int budget=atoi(argv[4]);
     
    // abc.display();
-    abc.result(0,6,12);
+    abc.result(source,target,budget);
     return 0;
 }
