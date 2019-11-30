@@ -13,9 +13,11 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     graph abc;
     std::cout<<argv[1];
+   // abc.read_file("g2.txt");
     abc.read_file(argv[1]);
-    abc.result(0, 5);
     
-    //abc.display();
+    
+   // abc.display();
+    abc.result(0,6);
     return 0;
 }

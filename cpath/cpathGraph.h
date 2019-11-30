@@ -25,7 +25,7 @@ class graph
         int vertexID;
         int totalCost;
         int totalTime;
-        totalTradeOff(int totcost=0, int totTime=0, int vID=0):totalCost{totcost},totalTime{totTime},vertexID{vID}
+        totalTradeOff(int totcost=-1, int totTime=INT_MAX, int vID=0):totalCost{totcost},totalTime{totTime},vertexID{vID}
         {
             
         }
@@ -35,7 +35,7 @@ class graph
       int vertex_id;
       int cost;
       int time;
-      
+      totalTradeOff total;
       edge(int vtx_id = 0,int _cost=0, int _time = 1.0)
         : vertex_id{vtx_id}, cost{_cost}, time{_time}
         {
@@ -162,46 +162,59 @@ public:
 
    
 
-    
+    //void path();
 
     vector<totalTradeOff> nonDominant(int src, int dest)
     {
        auto compare=[](const totalTradeOff& a, const totalTradeOff& b)
           {
+              if(a.totalCost==b.totalCost)
+                  return a.totalTime<b.totalTime;
+                  
               return a.totalCost> b.totalCost;
           };
-
+        
         totalTradeOff vrtx;
         int currentCost= -1;
         int currentTime=-1;
         unsigned long VecSize=0;
         priority_queue <totalTradeOff, vector<totalTradeOff>,decltype(compare)> Que(compare);
+        this->vertices[src].total.totalCost=0;
+        this->vertices[src].total.totalTime=0;
+        this->vertices[src].total.vertexID=src;
+        
         Que.push(this->vertices[src].total);
 
         while(!Que.empty())
         {
             VecSize=this->vertices[src].paretoCurve.size();
             vrtx=Que.top();
-            cout<<"vertex: "<<vrtx.vertexID<<endl;
+            //cout<<"vertex: "<<vrtx.vertexID<<endl;
+            cout<<"vertex: "<<vrtx.vertexID<<"  cost: "<<vrtx.totalCost<<" time: "<<vrtx.totalTime<<endl;
             Que.pop();
-            
-            
+
             for (auto &edg: this->vertices[vrtx.vertexID].outgoing)
             {
-//                if(edg.vertex_id==6)
-//                                {
-//                                    cout<<"first edge"<<edg.vertex_id<<endl;
-//                                }
+               
+                currentCost=vrtx.totalCost+edg.cost;
+                currentTime=vrtx.totalTime+edg.time;
+                
+               if(this->vertices[edg.vertex_id].total.totalCost<currentCost &&
+               this->vertices[edg.vertex_id].total.totalTime>currentTime)
+               {
+
+
+                  this->vertices[edg.vertex_id].total.totalCost=currentCost;
+                   this->vertices[edg.vertex_id].total.totalTime=currentTime;
+                   Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+               }
+
                 if(dest==edg.vertex_id)
                 {
-                    this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,vrtx.vertexID));
+        this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+                  //  return this->vertices[src].paretoCurve;
                 }
-//
-                currentCost=this->vertices[src].total.totalCost+edg.cost;
-                currentTime=this->vertices[src].total.totalTime+edg.time;
-                //cout<<currentCost<<" "<<currentTime<<" "<<edg.vertex_id<<endl;
-                Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
-                
+ 
             }
         }
         
@@ -215,6 +228,7 @@ public:
         for(auto& curvePoints: p)
         {
             cout<<curvePoints.totalCost<<": "<<curvePoints.totalTime<<": "<<curvePoints.vertexID<<endl;
+            
         }
     }
 };
