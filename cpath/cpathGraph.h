@@ -152,12 +152,6 @@ public:
                 cout<<a.vertex_id<<" "<<a.cost<<" "<<a.time<<endl;
             }
              cout<<endl;
-//             cout<<" has incoming edges from "<<endl;
-//            for(auto a: p.second.incoming)
-//            {
-//                cout<<a.vertex_id<<" "<<a.cost<<" "<<a.time<<endl;
-//            }
-//             cout<<endl;
         }
             
         cout<<endl;
@@ -170,7 +164,7 @@ public:
 
     vector<totalTradeOff> nonDominant(int src, int dest, int budget)
     {
-       auto compare=[](const totalTradeOff& a, const totalTradeOff& b)
+       auto compare=[](const totalTradeOff& a, const totalTradeOff& b)      //lambda function to compare
           {
               if(a.totalCost==b.totalCost)
                   return a.totalTime<b.totalTime;
@@ -178,31 +172,33 @@ public:
               return a.totalCost> b.totalCost;
           };
         
-        totalTradeOff vrtx;
-        int currentCost= -1;
-        int currentTime=-1;
-        unsigned long VecSize=0;
-        priority_queue <totalTradeOff, vector<totalTradeOff>,decltype(compare)> Que(compare);
-        this->vertices[src].total.totalCost=0;
-        this->vertices[src].total.totalTime=0;
-        this->vertices[src].total.vertexID=src;
+        totalTradeOff vrtx;     //used to get data from the queue
+        int currentCost= -1;    //keeping track of the cost
+        int currentTime=-1;     //keeping track of the time
+        unsigned long VecSize=0;  //keeping track of size of the paretoCurve vector
+        priority_queue <totalTradeOff, vector<totalTradeOff>,decltype(compare)> Que(compare); //min heap
+        this->vertices[src].total.totalCost=0;      //initializing the totalcost of the source
+        this->vertices[src].total.totalTime=0;      //initializing the totaltime of the source
+        this->vertices[src].total.vertexID=src;     //setting vertexID to itself
         
-        Que.push(this->vertices[src].total);
+        Que.push(this->vertices[src].total);        //starting from the source.
 
-        while(!Que.empty())
+        while(!Que.empty())         //loop till all the vertices are processed
         {
-            VecSize=this->vertices[src].paretoCurve.size();
-            vrtx=Que.top();
+            VecSize=this->vertices[src].paretoCurve.size(); //size of the pareto vector
+            vrtx=Que.top(); //Extracting the min edge
+            Que.pop();
             //cout<<"vertex: "<<vrtx.vertexID<<endl;
           //  cout<<"vertex: "<<vrtx.vertexID<<"  cost: "<<vrtx.totalCost<<" time: "<<vrtx.totalTime<<endl;
-            Que.pop();
-
+            
+                //checking the edges of the vrtx
             for (auto &edg: this->vertices[vrtx.vertexID].outgoing)
             {
-                currentCost=vrtx.totalCost+edg.cost;
-                currentTime=vrtx.totalTime+edg.time;
-                if(currentCost<=budget)
+                currentCost=vrtx.totalCost+edg.cost;        //updating the current cost
+                currentTime=vrtx.totalTime+edg.time;        //updating the current time
+                if(currentCost<=100)             //making sure cost is within our budget
                 {
+                    //only push it into the queue if it is non dominating and update that vertex
                     if(this->vertices[edg.vertex_id].total.totalCost<currentCost &&
                                        this->vertices[edg.vertex_id].total.totalTime>currentTime)
                                        {
@@ -211,32 +207,33 @@ public:
                                            this->vertices[edg.vertex_id].total.totalTime=currentTime;
                                            Que.push(totalTradeOff(currentCost,currentTime,edg.vertex_id));
                                        }// push if statement
-
+                                        //if we are at destination
                                         if(dest==edg.vertex_id)
                                         {
-                    //                        this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
+//                                            //check if its the first element in the ParetoCurve or not
                                            if(VecSize!=0)
-                                           {
-                                               
+                                           {        //if it is not then check for the dominance with last element
                                                if(this->vertices[src].paretoCurve[VecSize-1].totalCost<currentCost && this->vertices[src].paretoCurve[VecSize-1].totalTime>currentTime)
                                                {
                                                    this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
                                                }//if for previous
-                                               
+
                                            }//vecsize
-                                            else
+                                            else        //else it is the first element so add it
                                             {
                                             this->vertices[src].paretoCurve.push_back(totalTradeOff(currentCost,currentTime,edg.vertex_id));
-                                                            }
-                                            
-                                             //else for vecsize
+                                                            }//else for vecsize
+//
+                                             
                                         }//dest if statement
-                }
+                }// if budget
                    
-            }
-        }
+            }//for loop
+        } //while loop
+        //return the paths as vector
         return this->vertices[src].paretoCurve;
     }
+    
     
     bool extract_path(int src,int dest, vector<int> &path)
       {
@@ -254,6 +251,7 @@ public:
         return true; // placeholder
       }
 
+    
       void _extract_path(int src,int dest, vector<int> &path)
       {
         if (this->vertices[dest].predecessor == dest)
@@ -264,19 +262,38 @@ public:
         _extract_path(src, this->vertices[dest].predecessor, path);
         path.push_back(dest);
       }
-        
+ 
+    
     void result(int src, int dest,int budget)
     {
-        vector<totalTradeOff> p= nonDominant(src, dest, budget);
-        vector<int> path;
-        
-        for(auto& curvePoints: p)
+        if(dest>=this->vertices.size() || src>=this->vertices.size())
         {
-            path.clear();
-            cout<<"vertex to: "<<curvePoints.vertexID<<"  cost: "<<curvePoints.totalCost<<" time: "<<curvePoints.totalTime<<endl;
+            cout<<"Sorry either the source or the destination is out of bound"<<endl;
+            return;
+        }
+        vector<totalTradeOff> points= nonDominant(src, dest, budget);
+        vector<int> path;
+        unsigned long bestOption=points.size();
+        if(bestOption==0)
+        {
+            cout<<"Sorry you cant reach to this vertex in the given budget"<<endl;
+        }
+        else
+        {
+            totalTradeOff bestRoute=points.at(bestOption-1);    //the last in the pareto list is the best
             extract_path(src,dest,path);
+//            for(auto& ap: points)
+//            {
+//                cout<<ap.totalCost<<" "<<ap.totalTime<<endl;
+//            }
+            cout<<endl;
+            cout<<"The best route from "<<src<<" to "<<dest <<" costs $"<<bestRoute.totalCost<<endl
+            <<"And takes "<<bestRoute.totalTime <<" units of time"<<" with budget $"<<budget<<endl;
+            cout<<"The route/path  is: "<< endl;
+            cout<<"[ ";
             for(auto& pathss: path)
                 cout<<pathss<<" ";
+            cout<< "]";
             cout<<endl;
         }
     }
