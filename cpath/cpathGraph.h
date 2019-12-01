@@ -196,7 +196,7 @@ public:
             {
                 currentCost=vrtx.totalCost+edg.cost;        //updating the current cost
                 currentTime=vrtx.totalTime+edg.time;        //updating the current time
-                if(currentCost<=100)             //making sure cost is within our budget
+                if(currentCost<=budget)             //making sure cost is within our budget
                 {
                     //only push it into the queue if it is non dominating and update that vertex
                     if(this->vertices[edg.vertex_id].total.totalCost<currentCost &&

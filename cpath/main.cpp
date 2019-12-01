@@ -12,17 +12,17 @@
 int main(int argc, const char * argv[]) {
     // insert code here...
     graph abc;
-    std::cout<<argv[1];
-//    std::cout<<argv[2];
-//    std::cout<<argv[3];
-//    std::cout<<argv[4];
-    //abc.read_file("g2.txt");
+    if(argc<4)
+    {
+        cout<<"Sorry Invalid Syntax"<<endl;
+        cout<<"Usage: ./cpath <file> <src> <dest> <budget>"<<endl;
+        return 0;
+    }
     abc.read_file(argv[1]);
     int source= atoi(argv[2]);
     int target= atoi(argv[3]);
     int budget=atoi(argv[4]);
     
-   // abc.display();
     abc.result(source,target,budget);
     return 0;
 }
